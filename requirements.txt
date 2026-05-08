@@ -1,2 +1,6 @@
 firebase_admin
 streamlit
+pytz
+git add .
+git commit -m "added pytz"
+git push
