@@ -362,4 +362,8 @@ if mode == "inserting_a_block":
                     "partner_time": partner_time_str
                 })
 
-                st.success("Block added ✔")
+             st.success("Block added ✔")
+
+st.write("Type 'my schedule' to see your schedule.")
+st.write("Type 'fix schedule' to edit or delete your schedule.")
+st.write("Type 'new schedule' to set a new schedule.")
