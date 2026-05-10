@@ -237,69 +237,76 @@ st.write("Type 'new schedule' to create another schedule.")
 st.write("Type 'my schedules' to view all saved schedules.")
 
 # schedule modifying
+
+if "schedule_step" not in st.session_state:
+    st.session_state["schedule_step"] = "choose_action"
+
 if mode == "schedule_modifying":
 
-    st.write("📅 Your saved schedules:")
+    st.write("Do you wish to delete or edit a block?")
 
-    schedules = db.collection("schedules").get()
-    letters = list("abcdefghijklmnopqrstuvwxyz")
-    schedule_map = {}
+    action = st.radio("Choose action:", ["Edit", "Delete"])
 
-    for i, doc in enumerate(schedules):
-        if i >= len(letters):
-            break
+    if st.button("Continue"):
 
-        data = doc.to_dict()
-        label = letters[i]
+        # ---------------- DELETE FLOW ----------------
+        if action == "Delete":
 
-        schedule_map[label] = {
-            "id": doc.id,
-            "block": data.get("block", "")
-        }
+            st.write("📅 Select a schedule to delete:")
 
-        st.write(f"{label}. {schedule_map[label]['block']}")
+            schedules = db.collection("schedules").get()
+            letters = list("abcdefghijklmnopqrstuvwxyz")
+            schedule_map = {}
 
-    st.info("👉 Choose a schedule by letter:")
+            for i, doc in enumerate(schedules):
+                if i >= len(letters):
+                    break
 
-    selected = st.text_input("Your choice (letter):").lower()
+                data = doc.to_dict()
+                label = letters[i]
 
-    if selected and selected in schedule_map:
-        st.session_state["edit_schedule_id"] = schedule_map[selected]["id"]
-        st.success(f"Selected block {selected}")
-        st.session_state["schedule_step"] = "choose_component"
+                schedule_map[label] = {
+                    "id": doc.id,
+                    "block": data.get("block", "")
+                }
 
-if (
-    mode == "schedule_modifying"
-    and "schedule_step" in st.session_state
-    and st.session_state["schedule_step"] == "choose_component"
-):
+                st.write(f"{label}. {schedule_map[label]['block']}")
 
-    schedule_doc = db.collection("schedules").document(
-        st.session_state["edit_schedule_id"]
-    ).get()
+            selected = st.text_input("Choose letter to delete:").lower()
 
-    data = schedule_doc.to_dict()
+            if selected and selected in schedule_map:
+                db.collection("schedules").document(
+                    schedule_map[selected]["id"]
+                ).delete()
 
-    st.write("📌 This schedule contains:")
+                st.success("Schedule deleted ✔")
 
-    component_map = {
-        "a": "block",
-        "b": "user_time",
-        "c": "partner_time"
-    }
+        # ---------------- EDIT FLOW ----------------
+        elif action == "Edit":
 
-    st.write("a. Block")
-    st.write("b. User time")
-    st.write("c. Partner time")
+            st.write("📅 Select a schedule to edit:")
 
-    st.info("Choose by letter the component to edit, then edit it.")
+            schedules = db.collection("schedules").get()
+            letters = list("abcdefghijklmnopqrstuvwxyz")
+            schedule_map = {}
 
-    component = st.text_input("Enter letter (a, b, c):").lower()
+            for i, doc in enumerate(schedules):
+                if i >= len(letters):
+                    break
 
-    if component in component_map:
+                data = doc.to_dict()
+                label = letters[i]
 
-        st.session_state["edit_component"] = component_map[component]
+                schedule_map[label] = {
+                    "id": doc.id,
+                    "block": data.get("block", "")
+                }
 
-        st.success(f"Selected: {component_map[component]}")
-        st.session_state["schedule_step"] = "edit_component"
+                st.write(f"{label}. {schedule_map[label]['block']}")
+
+            selected = st.text_input("Choose letter to edit:").lower()
+
+            if selected and selected in schedule_map:
+                st.session_state["edit_schedule_id"] = schedule_map[selected]["id"]
+                st.success("Schedule selected ✔")
 
