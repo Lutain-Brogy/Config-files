@@ -232,7 +232,74 @@ User time: {data.get('user_time', '')}
 Partner time: {data.get('partner_time', '')}
 """)
 
-        st.write(
-            "Here is your saved schedule. Type 'fix schedule' to fix, delete or add a block."
-        )
+      st.write("Type 'fix schedule' to edit or delete a schedule.")
+st.write("Type 'new schedule' to create another schedule.")
+st.write("Type 'my schedules' to view all saved schedules.")
+
+# schedule modifying
+if mode == "schedule_modifying":
+
+    st.write("📅 Your saved schedules:")
+
+    schedules = db.collection("schedules").get()
+    letters = list("abcdefghijklmnopqrstuvwxyz")
+    schedule_map = {}
+
+    for i, doc in enumerate(schedules):
+        if i >= len(letters):
+            break
+
+        data = doc.to_dict()
+        label = letters[i]
+
+        schedule_map[label] = {
+            "id": doc.id,
+            "block": data.get("block", "")
+        }
+
+        st.write(f"{label}. {schedule_map[label]['block']}")
+
+    st.info("👉 Choose a schedule by letter:")
+
+    selected = st.text_input("Your choice (letter):").lower()
+
+    if selected and selected in schedule_map:
+        st.session_state["edit_schedule_id"] = schedule_map[selected]["id"]
+        st.success(f"Selected block {selected}")
+        st.session_state["schedule_step"] = "choose_component"
+
+if (
+    mode == "schedule_modifying"
+    and "schedule_step" in st.session_state
+    and st.session_state["schedule_step"] == "choose_component"
+):
+
+    schedule_doc = db.collection("schedules").document(
+        st.session_state["edit_schedule_id"]
+    ).get()
+
+    data = schedule_doc.to_dict()
+
+    st.write("📌 This schedule contains:")
+
+    component_map = {
+        "a": "block",
+        "b": "user_time",
+        "c": "partner_time"
+    }
+
+    st.write("a. Block")
+    st.write("b. User time")
+    st.write("c. Partner time")
+
+    st.info("Choose by letter the component to edit, then edit it.")
+
+    component = st.text_input("Enter letter (a, b, c):").lower()
+
+    if component in component_map:
+
+        st.session_state["edit_component"] = component_map[component]
+
+        st.success(f"Selected: {component_map[component]}")
+        st.session_state["schedule_step"] = "edit_component"
 
