@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 import pytz
 
-st.title("My schedule assistant")
+st.title("My Schedule Assistant")
 
 # Firebase init
 if not firebase_admin._apps:
@@ -17,133 +17,222 @@ db = firestore.client()
 # Input (ONLY ONCE)
 user_input = st.text_input("You:")
 
+# Default mode
 mode = "normal"
 
+# Detect mode from user input
 if user_input:
     user_input_lower = user_input.lower()
 
     if "new contact" in user_input_lower:
         mode = "contact_saving"
-    elif "new schedule" in user_input_lower or "meet" in user_input_lower:
+
+    elif "new schedule" in user_input_lower:
         mode = "scheduling"
+
     elif "add a block" in user_input_lower:
         mode = "blocks"
+
     elif "my schedules" in user_input_lower:
         mode = "show_schedules"
+
     elif "my contacts" in user_input_lower:
         mode = "show_contacts"
+
+    elif "fix a contact" in user_input_lower:
+        mode = "contact_editing"
+
+    elif "fix schedule" in user_input_lower:
+        mode = "schedule_modifying"
+
     else:
         mode = "normal"
-
-
-# ---------------- SCHEDULING ----------------
-if mode == "scheduling":
-    st.write("Scheduling mode detected")
-
-    if st.button("Process Schedule"):
-
-        match = re.search(r"meet (\w+) at (\d{2}:\d{2})", user_input.lower())
-
-        if match:
-            name = match.group(1).capitalize()
-            time_str = match.group(2)
-
-            contact_query = db.collection("contacts").where("name", "==", name).get()
-
-            if contact_query:
-
-                contact = contact_query[0].to_dict()
-                country = contact["country"]
-
-                country_to_tz = {
-                    "Botswana": "Africa/Gaborone",
-                    "Cuba": "America/Havana"
-                }
-
-                other_tz_name = country_to_tz.get(country)
-
-                if other_tz_name:
-
-                    local_tz = pytz.timezone("Africa/Gaborone")
-                    other_tz = pytz.timezone(other_tz_name)
-
-                    local_time = datetime.strptime(time_str, "%H:%M")
-                    local_time = local_tz.localize(local_time)
-
-                    other_time = local_time.astimezone(other_tz)
-
-                    local_result = local_time.strftime("%H:%M")
-                    other_result = other_time.strftime("%H:%M")
-
-                    st.write(f"Meet {name} at {local_result}")
-                    st.write(f"{name} time: {other_result}")
-
-                    db.collection("schedules").add({
-                        "task": f"Meet {name}",
-                        "your_time": local_result,
-                        "their_time": other_result
-                    })
-
-                    st.success("Schedule saved")
-
-                else:
-                    st.write("No timezone found for contact country")
-
-            else:
-                st.write("Not a contact")
-
-
-# ---------------- SHOW SCHEDULES ----------------
-if mode == "show_schedules":
-    st.write("📅 Your schedules:")
-
-    schedules = db.collection("schedules").stream()
-
-    for s in schedules:
-        st.write(s.to_dict())
-
-
-# ---------------- SHOW CONTACTS ----------------
-if mode == "show_contacts":
-    st.write("📇 Your contacts:")
-
-    contacts = db.collection("contacts").stream()
-
-    for c in contacts:
-        st.write(c.to_dict())
-
-
-# ---------------- CONTACT SAVING ----------------
+        
+# setting contacts
 if mode == "contact_saving":
-    st.write("Add a new contact:")
+    st.subheader("📇 Contact Saving Mode")
 
-    name = st.text_input("Name")
-    phone = st.text_input("Phone")
-    city = st.text_input("City")
-    country = st.text_input("Country")
-    notes = st.text_area("Notes")
+    st.write("Please save your contact using the following fields:")
+
+    st.markdown("""
+    a. **Name**  
+    b. **Country**  
+    c. **Timezone**  
+    d. **Phone**  
+    e. **Email**  
+    f. **Notes**
+    """)
 
     if st.button("Save Contact"):
         db.collection("contacts").add({
-            "name": name,
-            "phone": phone,
-            "city": city,
-            "country": country,
-            "notes": notes
+            "raw_input": user_input,
+            "timestamp": datetime.now().isoformat()
         })
 
-        st.success("Contact saved!")
+        st.success("Your contact has been saved ✔")
+        st.write("Type 'My contacts' to view them.")
 
+# contact editing
+if "edit_contact_id" in st.session_state:
 
-# ---------------- BLOCKS ----------------
-if mode == "blocks":
-    st.write("Add your block it will be added to your schedule.")
+    if "edit_step" not in st.session_state:
+        st.session_state["edit_step"] = "choose_action"
 
-    block_input = st.text_input("Write your block:")
+    if st.session_state["edit_step"] == "choose_action":
 
-    if st.button("Save Block") and block_input:
-        db.collection("schedules").add({
-            "block": block_input
+        st.write("Do you wish to delete or edit this contact?")
+
+        action = st.radio("Choose action:", ["Edit", "Delete"])
+
+        if st.button("Confirm Action"):
+            st.session_state["action"] = action
+            st.session_state["edit_step"] = action.lower()
+
+    elif st.session_state["edit_step"] == "delete":
+
+        st.write("Are you sure you want to delete this contact?")
+
+        if st.button("Yes, Delete"):
+            db.collection("contacts").document(
+                st.session_state["edit_contact_id"]
+            ).delete()
+
+            st.success("Contact deleted ✔")
+
+            del st.session_state["edit_contact_id"]
+            del st.session_state["edit_step"]
+
+    elif st.session_state["edit_step"] == "edit":
+
+        st.write("Edit contact details:")
+
+        contact_doc = db.collection("contacts").document(
+            st.session_state["edit_contact_id"]
+        ).get()
+
+        contact_data = contact_doc.to_dict()
+
+        name = st.text_input("Name", value=contact_data.get("name", ""))
+        country = st.text_input("Country", value=contact_data.get("country", ""))
+        timezone = st.text_input("Timezone", value=contact_data.get("timezone", ""))
+        phone = st.text_input("Phone", value=contact_data.get("phone", ""))
+        email = st.text_input("Email", value=contact_data.get("email", ""))
+        notes = st.text_area("Notes", value=contact_data.get("notes", ""))
+
+        if st.button("Save Changes"):
+            db.collection("contacts").document(
+                st.session_state["edit_contact_id"]
+            ).update({
+                "name": name,
+                "country": country,
+                "timezone": timezone,
+                "phone": phone,
+                "email": email,
+                "notes": notes
+            })
+
+            st.success("Contact updated ✔")
+
+            del st.session_state["edit_contact_id"]
+            del st.session_state["edit_step"]
+
+# scheduling
+import string
+
+user_block = ""
+
+if mode == "scheduling":
+
+    st.write("Who would you like to set a schedule with? Choose using letters.")
+
+    contacts = db.collection("contacts").get()
+
+    letters = list(string.ascii_lowercase)
+    contact_map = {}
+
+    for i, doc in enumerate(contacts):
+        if i >= len(letters):
+            break
+
+        contact = doc.to_dict()
+        label = letters[i]
+
+        contact_map[label] = {
+            "id": doc.id,
+            "name": contact.get("name", "Unknown")
+        }
+
+        st.write(f"{label}. {contact_map[label]['name']}")
+
+    selected = st.text_input("Enter letter (e.g. a, b, c):").lower()
+
+    if selected and selected in contact_map:
+        st.session_state["schedule_contact_id"] = contact_map[selected]["id"]
+
+        st.success(f"Selected: {contact_map[selected]['name']}")
+
+        st.write("Write your block here:")
+        user_block = st.text_area("Schedule details")
+
+# Process the schedule block
+if user_block and "schedule_contact_id" in st.session_state:
+
+    contact_doc = db.collection("contacts").document(
+        st.session_state["schedule_contact_id"]
+    ).get()
+
+    contact = contact_doc.to_dict()
+    country = contact.get("country")
+
+    country_to_tz = {
+        "Botswana": "Africa/Gaborone",
+        "Cuba": "America/Havana"
+    }
+
+    other_tz_name = country_to_tz.get(country)
+
+    if other_tz_name:
+
+        local_tz = pytz.timezone("Africa/Gaborone")
+        other_tz = pytz.timezone(other_tz_name)
+
+        now = datetime.now()
+
+        local_time = local_tz.localize(now)
+        partner_time = local_time.astimezone(other_tz)
+
+        user_time = local_time.strftime("%Y-%m-%d %H:%M")
+        partner_time_str = partner_time.strftime("%Y-%m-%d %H:%M")
+        # SAVE SCHEDULE
+              db.collection("schedules").add({
+            "contact_id": st.session_state["schedule_contact_id"],
+            "block": user_block,
+            "user_time": user_time,
+            "partner_time": partner_time_str
         })
 
-        st.success("Block saved to schedules!")
+        st.success("Schedule saved ✔")
+
+        st.write("📅 Here is your saved schedule:")
+
+        schedules = db.collection("schedules").get()
+        letters = list("abcdefghijklmnopqrstuvwxyz")
+
+        for i, doc in enumerate(schedules):
+            if i >= len(letters):
+                break
+
+            data = doc.to_dict()
+
+            st.write(f"""
+{letters[i]}.
+Block: {data.get('block', '')}
+
+User time: {data.get('user_time', '')}
+Partner time: {data.get('partner_time', '')}
+""")
+
+        st.write(
+            "Here is your saved schedule. Type 'fix schedule' to fix, delete or add a block."
+        )
+
