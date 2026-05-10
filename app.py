@@ -309,4 +309,57 @@ if mode == "schedule_modifying":
             if selected and selected in schedule_map:
                 st.session_state["edit_schedule_id"] = schedule_map[selected]["id"]
                 st.success("Schedule selected ✔")
+#adding a block
+if mode == "inserting_a_block":
 
+    st.write("Write your block right here (e.g. Meet James at 07:30)")
+
+    user_block = st.text_input("Block:")
+
+    if user_block:
+
+        import re
+
+        # Extract time (HH:MM)
+        match = re.search(r"(\d{2}:\d{2})", user_block)
+
+        if match:
+            time_str = match.group(1)
+
+            # Get contact linked to this schedule context
+            contact_doc = db.collection("contacts").document(
+                st.session_state["schedule_contact_id"]
+            ).get()
+
+            contact = contact_doc.to_dict()
+            country = contact.get("country")
+
+            country_to_tz = {
+                "Botswana": "Africa/Gaborone",
+                "Cuba": "America/Havana"
+            }
+
+            other_tz_name = country_to_tz.get(country)
+
+            if other_tz_name:
+
+                local_tz = pytz.timezone("Africa/Gaborone")
+                other_tz = pytz.timezone(other_tz_name)
+
+                now = datetime.now()
+
+                local_time = local_tz.localize(now)
+                partner_time = local_time.astimezone(other_tz)
+
+                user_time = time_str
+                partner_time_str = partner_time.strftime("%H:%M")
+
+                # SAVE NEW BLOCK
+                db.collection("schedules").add({
+                    "contact_id": st.session_state["schedule_contact_id"],
+                    "block": user_block,
+                    "user_time": user_time,
+                    "partner_time": partner_time_str
+                })
+
+                st.success("Block added ✔")
