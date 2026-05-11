@@ -204,7 +204,7 @@ if user_block and "schedule_contact_id" in st.session_state:
         user_time = local_time.strftime("%Y-%m-%d %H:%M")
         partner_time_str = partner_time.strftime("%Y-%m-%d %H:%M")
         # SAVE SCHEDULE
-              db.collection("schedules").add({
+        db.collection("schedules").add({
             "contact_id": st.session_state["schedule_contact_id"],
             "block": user_block,
             "user_time": user_time,
