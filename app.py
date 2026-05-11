@@ -313,57 +313,82 @@ if mode == "schedule_modifying":
 #adding a block
 if mode == "inserting_a_block":
 
-    st.write("Write your block right here (e.g. Meet James at 07:30)")
+    st.write("Choose which contact you would like to make a schedule for by letter (a-z)")
 
-    user_block = st.text_input("Block:")
+    # Example: contacts already loaded somewhere earlier
+    letters = list("abcdefghijklmnopqrstuvwxyz")
 
-    if user_block:
+    contacts = db.collection("contacts").get()
 
-        import re
+    for i, doc in enumerate(contacts):
+        if i >= len(letters):
+            break
 
-        # Extract time (HH:MM)
-        match = re.search(r"(\d{2}:\d{2})", user_block)
+        data = doc.to_dict()
+        st.write(f"{letters[i]}. {data.get('name', 'Unknown')}")
 
-        if match:
-            time_str = match.group(1)
+    selected_letter = st.text_input("Choose letter:")
 
-            # Get contact linked to this schedule context
-           contact_doc = db.collection("contacts").document(
-    st.session_state["schedule_contact_id"]
-).get()
+    if selected_letter:
 
-contact = contact_doc.to_dict()
-country = contact.get("country")
+        index = letters.index(selected_letter.lower())
+        selected_contact = list(contacts)[index]
 
-country_to_tz = {
-    "Botswana": "Africa/Gaborone",
-    "Cuba": "America/Havana"
-}
+        st.session_state["schedule_contact_id"] = selected_contact.id
 
-other_tz_name = country_to_tz.get(country)
+        st.write("Write your block right here (e.g. Meet James at 07:30)")
 
-if other_tz_name:
-    local_tz = pytz.timezone("Africa/Gaborone")
-    other_tz = pytz.timezone(other_tz_name)
+        user_block = st.text_input("Block:")
 
-    now = datetime.now()
+        if user_block:
 
-    local_time = local_tz.localize(now)
-    partner_time = local_time.astimezone(other_tz)
+            import re
+            from datetime import datetime
+            import pytz
 
-    user_time = time_str
-    partner_time_str = partner_time.strftime("%H:%M")
+            match = re.search(r"(\d{2}:\d{2})", user_block)
 
-    db.collection("schedules").add({
-        "contact_id": st.session_state["schedule_contact_id"],
-        "block": user_block,
-        "user_time": user_time,
-        "partner_time": partner_time_str
-    })
+            if match:
 
-    st.success("Block added ✔")
+                time_str = match.group(1)
 
-    st.write("Type 'my schedule' to see your schedule.")
-    st.write("Type 'fix schedule' to edit or delete your schedule.")
-    st.write("Type 'new schedule' to set a new schedule.")
-                # SAVE NEW BLOCK
+                contact_doc = db.collection("contacts").document(
+                    st.session_state["schedule_contact_id"]
+                ).get()
+
+                contact = contact_doc.to_dict()
+                country = contact.get("country")
+
+                country_to_tz = {
+                    "Botswana": "Africa/Gaborone",
+                    "Cuba": "America/Havana"
+                }
+
+                partner_tz_name = country_to_tz.get(country)
+
+                if partner_tz_name:
+
+                    local_tz = pytz.timezone("Africa/Gaborone")
+                    partner_tz = pytz.timezone(partner_tz_name)
+
+                    now = datetime.now()
+
+                    local_time = local_tz.localize(now)
+                    partner_time = local_time.astimezone(partner_tz)
+
+                    user_time = time_str
+                    partner_time_str = partner_time.strftime("%H:%M")
+
+                    db.collection("schedules").add({
+                        "contact_id": st.session_state["schedule_contact_id"],
+                        "block": user_block,
+                        "user_time": user_time,
+                        "partner_time": partner_time_str
+                    })
+
+                    st.success("Your schedule is saved ✔")
+
+                    st.write("SCHEDULE")
+                    st.write(user_block)
+                    st.write(f"Your time: {user_time}    Partner time: {partner_time_str}")
+                
