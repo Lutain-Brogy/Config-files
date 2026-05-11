@@ -341,6 +341,19 @@ if mode == "inserting_a_block":
             }
 
             other_tz_name = country_to_tz.get(country)
+db.collection("schedules").add({
+    "contact_id": st.session_state["schedule_contact_id"],
+    "block": user_block,
+    "user_time": user_time,
+    "partner_time": partner_time_str
+})
+
+st.success("Block added ✔")
+
+st.write("Type 'my schedule' to see your schedule.")
+st.write("Type 'fix schedule' to edit or delete your schedule.")
+st.write("Type 'new schedule' to set a new schedule.")
+
 
             if other_tz_name:
 
@@ -356,15 +369,3 @@ if mode == "inserting_a_block":
                 partner_time_str = partner_time.strftime("%H:%M")
 
                 # SAVE NEW BLOCK
-                db.collection("schedules").add({
-                    "contact_id": st.session_state["schedule_contact_id"],
-                    "block": user_block,
-                    "user_time": user_time,
-                    "partner_time": partner_time_str
-                })
-
-             st.success("Block added ✔")
-
-st.write("Type 'my schedule' to see your schedule.")
-st.write("Type 'fix schedule' to edit or delete your schedule.")
-st.write("Type 'new schedule' to set a new schedule.")
