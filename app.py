@@ -204,34 +204,35 @@ if user_block and "schedule_contact_id" in st.session_state:
         user_time = local_time.strftime("%Y-%m-%d %H:%M")
         partner_time_str = partner_time.strftime("%Y-%m-%d %H:%M")
         # SAVE SCHEDULE
-        db.collection("schedules").add({
-            "contact_id": st.session_state["schedule_contact_id"],
-            "block": user_block,
-            "user_time": user_time,
-            "partner_time": partner_time_str
-        })
+    db.collection("schedules").add({
+    "contact_id": st.session_state["schedule_contact_id"],
+    "block": user_block,
+    "user_time": user_time,
+    "partner_time": partner_time_str
+})
 
-        st.success("Schedule saved ✔")
+st.success("Schedule saved ✔")
 
-        st.write("📅 Here is your saved schedule:")
+st.write("📅 Here is your saved schedule:")
 
-        schedules = db.collection("schedules").get()
-        letters = list("abcdefghijklmnopqrstuvwxyz")
+schedules = db.collection("schedules").get()
+letters = list("abcdefghijklmnopqrstuvwxyz")
 
-        for i, doc in enumerate(schedules):
-            if i >= len(letters):
-                break
+for i, doc in enumerate(schedules):
+    if i >= len(letters):
+        break
 
-            data = doc.to_dict()
+    data = doc.to_dict()
 
-            st.write(f"""
+    st.write(f"""
 {letters[i]}.
 Block: {data.get('block', '')}
 
 User time: {data.get('user_time', '')}
 Partner time: {data.get('partner_time', '')}
 """)
-  st.write("Type 'fix schedule' to edit or delete a schedule.")
+
+st.write("Type 'fix schedule' to edit or delete a schedule.")
 st.write("Type 'new schedule' to create another schedule.")
 st.write("Type 'my schedules' to view all saved schedules.")
 
