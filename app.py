@@ -231,10 +231,10 @@ Block: {data.get('block', '')}
 User time: {data.get('user_time', '')}
 Partner time: {data.get('partner_time', '')}
 """)
-
-      st.write("Type 'fix schedule' to edit or delete a schedule.")
+  st.write("Type 'fix schedule' to edit or delete a schedule.")
 st.write("Type 'new schedule' to create another schedule.")
 st.write("Type 'my schedules' to view all saved schedules.")
+
 
 # schedule modifying
 
