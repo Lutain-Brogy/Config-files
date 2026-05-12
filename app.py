@@ -1,18 +1,26 @@
+
+
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
+import json
 import re
 from datetime import datetime
 import pytz
 
-st.title("My Schedule Assistant")
-
-# Firebase init
+# ---------------- Firebase Init ----------------
 if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
+
+    firebase_config = json.loads(st.secrets["firebase"])
+    cred = credentials.Certificate(firebase_config)
+
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
+
+# ---------------- App Title ----------------
+st.title("Schedule System")
+
 
 # Input (ONLY ONCE)
 user_input = st.text_input("You:")
