@@ -4,7 +4,6 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 import json
-st.write(repr(st.secrets["firebase"]))
 import re
 from datetime import datetime
 import pytz
