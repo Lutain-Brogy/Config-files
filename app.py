@@ -13,10 +13,10 @@ if choose_selection == '.env':
         ['Ai API .env type']
     )
 
-  if env_selection == 'Ai API .env type':
-      A = user_input('Type the defualt provider')
+    if env_selection == 'Ai API .env type':
+        A = user_input('Type the defualt provider')
 
-    st.code(f'''
+        st.code(f'''
 # Default provider
 DEFAULT_PROVIDER={A} 
 ''')
