@@ -2,11 +2,11 @@ import streamlit as st
 st.title(".env file writer") 
 
 user_input = st.text_input
+choose_selection = st.selectbox('Chooose the type of file you want to write today'
+                      [".env",
+                       "none"
+                      ]
+                     )
 
-choose mode = st.text_input
-
-if choose mode:
- mode = "env. file making"
-else:
-  mode = 'normal'
-  
+if choose_selection = '.env':
+st.write('Hello')
