@@ -14,4 +14,10 @@ if choose_selection == '.env':
     )
 
     if env_selection == 'Ai API .env type':
-        st.write('hi')
+        A = user_input('Type the defualt provider')
+
+        st.code(f'
+    # Default provider
+DEFAULT_PROVIDER={A} 
+')
+        
