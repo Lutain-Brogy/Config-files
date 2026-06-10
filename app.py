@@ -8,7 +8,7 @@ choose_selection = st.selectbox(
 )
 
 if choose_selection == '.env':
-    .env_selection = st.selectbox('Choose the .env file type you want'
+    env_selection = st.selectbox('Choose the .env file type you want'
                                 ["Ai API .env type"]
                                  )
     if .env_selection = 'Ai API .env type':
