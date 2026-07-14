@@ -115,7 +115,7 @@ if match:
 
 
     # Generate rule
-    rule = f"""
+    use = f"""
 rules_version = '2';
 
 service cloud.firestore {{
