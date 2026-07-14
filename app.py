@@ -57,6 +57,8 @@ service cloud.firestore {{
 
             st.code(rule, language="javascript")
 
+'''
+
     if Rule == 'Authenticated rule':
         sentence = st.text_input(
     "Write your rule sentence:",
@@ -73,9 +75,10 @@ if match:
     # Sentence variables
     A = match.group(1)  # collection
     B = match.group(2)  # document
-    C = match.group(3)  # allow / deny
-    D = match.group(4)  # read / write / update / delete
+    C = match.group(4)  # allow / deny
+    D = match.group(3)  # read / write / update / delete
     E = match.group(5)  # user condition
+
 
 
     # Condition selector
@@ -115,14 +118,15 @@ if match:
 
 
     # Generate rule
-    use = f"""
+    use = rule = f"""
 rules_version = '2';
 
 service cloud.firestore {{
   match /databases/{{database}}/documents {{
 
     match /{A}/{B}/{{any}} {{
-      {C} {D}: if {condition};
+      allow {D}: if request.auth {C}= null;
+                 {condition}
     }}
 
   }}
@@ -132,5 +136,5 @@ service cloud.firestore {{
 
     st.code(rule, language="javascript")
 
-
+''' 
 
