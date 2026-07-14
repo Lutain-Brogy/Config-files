@@ -4,7 +4,7 @@ st.title("Firestore Mini RuleSense")
 
 mode = st.selectbox('Choose',
                     ["Rule","Learn"])
-   if mode == 'Rule':
+  if mode == 'Rule':
 
 sentence = st.text_input("Enter sentence")
 
