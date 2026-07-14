@@ -57,7 +57,7 @@ service cloud.firestore {{
 
             st.code(rule, language="javascript")
 
-'''
+
 
     if Rule == 'Authenticated rule':
         sentence = st.text_input(
@@ -136,5 +136,4 @@ service cloud.firestore {{
 
     st.code(rule, language="javascript")
 
-''' 
 
