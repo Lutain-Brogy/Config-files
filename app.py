@@ -22,7 +22,7 @@ if mode == 'Standard':
         )
 
         match = re.search(
-            r"At collection (\w+) and document (\w+), (\w+) (\w+) for everybody",
+            r"At collection (\w+) and document (\w+), (\w+) (\w+) for everybody:",
             sentence
         )
 
