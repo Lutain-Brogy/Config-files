@@ -18,11 +18,12 @@ if mode == 'Standard':
     if Rule == "Public rule":
 
         sentence = st.text_input(
-            "Write your rule sentence"
+            "Write your rule sentence:",
+            "At collection users and document profile, allow read for everybody"
         )
 
         match = re.search(
-            r"At collection (\w+) and document (\w+), (\w+) (\w+) for everybody:",
+            r"At collection (\w+) and document (\w+), (\w+) (\w+) for everybody:\",
             sentence
         )
 
