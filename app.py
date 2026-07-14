@@ -3,7 +3,7 @@ import streamlit as st
 st.title("Firestore Mini RuleSense")
 
 mode = st.selectbox('Choose',
-                    ["Rule","Learn"]
+                    ["Rule","Learn"])
 if mode == 'Rule':
 
 sentence = st.text_input("Enter sentence")
