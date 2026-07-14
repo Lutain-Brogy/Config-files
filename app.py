@@ -58,6 +58,82 @@ service cloud.firestore {{
             st.code(rule, language="javascript")
 
     if Rule == 'Authenticated rule':
-        st.write('helo') 
+        sentence = st.text_input(
+    "Write your rule sentence:",
+    "At collection users and document profile, allow read for logged in"
+)
+
+match = re.search(
+    r"At collection (\w+) and document (\w+), (\w+) (\w+) for logged in (\w+)",
+    sentence
+)
+
+if match:
+
+    # Sentence variables
+    A = match.group(1)  # collection
+    B = match.group(2)  # document
+    C = match.group(3)  # allow / deny
+    D = match.group(4)  # read / write / update / delete
+    E = match.group(5)  # user condition
+
+
+    # Condition selector
+    user_type = st.selectbox(
+        "Choose user condition:",
+        [
+            "logged in",
+            "UID",
+            "Role",
+            "Admin",
+            "Owner"
+        ]
+    )
+
+
+    if user_type == "logged in":
+        condition = "request.auth != null"
+
+
+    elif user_type == "UID":
+        uid = st.text_input("Enter UID:")
+        condition = f"request.auth != null && request.auth.uid == '{uid}'"
+
+
+    elif user_type == "Role":
+        role = st.text_input("Enter role:")
+        condition = f"request.auth != null && request.auth.token.role == '{role}'"
+
+
+    elif user_type == "Admin":
+        condition = "request.auth != null && request.auth.token.role == 'admin'"
+
+
+    elif user_type == "Owner":
+        condition = "request.auth != null && request.auth.uid == resource.data.ownerId"
+
+
+
+    # Generate rule
+    rule = f"""
+rules_version = '2';
+
+service cloud.firestore {{
+  match /databases/{{database}}/documents {{
+
+    match /{A}/{B}/{{any}} {{
+      {C} {D}: if {condition};
+    }}
+
+  }}
+}}
+"""
+
+
+    st.code(rule, language="javascript")
+
+
+else:
+    st.warning("Sentence format not recognized")
 
 
