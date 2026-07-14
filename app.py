@@ -7,7 +7,7 @@ mode = st.selectbox('Choose',
 if mode == 'Rule':
   sentence = st.text_input("Enter sentence")
 
-match = re.search(r"At collection (\w+) and document (\w+)", sentence)
+  match = re.search(r"At collection (\w+) and document (\w+)", sentence)
 
 if match:
     A = match.group(1)
