@@ -56,3 +56,8 @@ service cloud.firestore {{
 """
 
             st.code(rule, language="javascript")
+
+    if Rule == 'Authenticated rule':
+        st.write('helo') 
+
+
