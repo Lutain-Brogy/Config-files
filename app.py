@@ -133,7 +133,4 @@ service cloud.firestore {{
     st.code(rule, language="javascript")
 
 
-else:
-    st.warning("Sentence format not recognized")
-
 
