@@ -129,7 +129,7 @@ service cloud.firestore {{
 
     match /{A}/{B}/{{any}} {{
       allow {C}: if request.auth {D_choice}= null;
-                 {condition}
+                  {condition}
     }}
 
   }}
