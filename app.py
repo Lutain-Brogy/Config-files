@@ -79,6 +79,11 @@ if match:
     D = match.group(3)  # read / write / update / delete
     E = match.group(5)  # user condition
 
+    if D == 'allow':
+        D_choice = '!'
+    else:
+        '='
+
 
 
     # Condition selector
@@ -125,7 +130,7 @@ service cloud.firestore {{
   match /databases/{{database}}/documents {{
 
     match /{A}/{B}/{{any}} {{
-      allow {D}: if request.auth {C}= null;
+      allow {C}: if request.auth {D_choice}= null;
                  {condition}
     }}
 
