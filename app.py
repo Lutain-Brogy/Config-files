@@ -95,25 +95,25 @@ if match:
 
 
     if user_type == "logged in":
-        condition = "request.auth != null"
+        condition = ""
 
 
     elif user_type == "UID":
         uid = st.text_input("Enter UID:")
-        condition = f"request.auth != null && request.auth.uid == '{uid}'"
+        condition = f"&& request.auth != null && request.auth.uid == '{uid}'"
 
 
     elif user_type == "Role":
         role = st.text_input("Enter role:")
-        condition = f"request.auth != null && request.auth.token.role == '{role}'"
+        condition = f"&& request.auth != null && request.auth.token.role == '{role}'"
 
 
     elif user_type == "Admin":
-        condition = "request.auth != null && request.auth.token.role == 'admin'"
+        condition = "&& request.auth != null && request.auth.token.role == 'admin'"
 
 
     elif user_type == "Owner":
-        condition = "request.auth != null && request.auth.uid == resource.data.ownerId"
+        condition = "&& request.auth != null && request.auth.uid == resource.data.ownerId"
 
 
 
