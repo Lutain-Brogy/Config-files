@@ -100,23 +100,27 @@ if match:
 
 
     if user_type == "logged in":
-        condition = ""
+        condition = ";"
 
 
     elif user_type == "UID":
-        condition = f"&& request.auth.uid == ''"
+        condition = f";
+        && request.auth.uid == ''"
 
 
     elif user_type == "Role":
-        condition = f"&& request.auth.token.role == ''"
+        condition = f";
+        && request.auth.token.role == ''"
 
 
     elif user_type == "Admin":
-        condition = "&& request.auth.token.role == 'admin'"
+        condition = ";
+        && request.auth.token.role == 'admin'"
 
 
     elif user_type == "Owner":
-        condition = "&& request.auth.uid == resource.data.ownerId"
+        condition = ";
+        && request.auth.uid == resource.data.ownerId"
 
 
 
@@ -128,8 +132,7 @@ service cloud.firestore {{
   match /databases/{{database}}/documents {{
 
     match /{A}/{B}/{{any}} {{
-      allow {C}: if request.auth {D_choice}= null;
-                  {condition}
+      allow {C}: if request.auth {D_choice}= null{condition}
     }}
 
   }}
