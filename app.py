@@ -100,7 +100,7 @@ if match:
 
 
     if user_type == "logged in":
-        st.write('Place ; after null please')
+        st.write('Place ; after null, when you have pasted in database.')
         condition = ''
 
 
