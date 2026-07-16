@@ -104,13 +104,13 @@ if match:
 
 
     elif user_type == "UID":
-        condition = f";
-        && request.auth.uid == ''"
+        condition = (f";
+        && request.auth.uid == ''")
 
 
     elif user_type == "Role":
-        condition = f";
-        && request.auth.token.role == ''"
+        condition = (f";
+        && request.auth.token.role == ''")
 
 
     elif user_type == "Admin":
