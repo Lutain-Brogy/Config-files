@@ -104,13 +104,11 @@ if match:
 
 
     elif user_type == "UID":
-        uid = st.text_input("Enter UID:")
-        condition = f"&& request.auth != null && request.auth.uid == '{uid}'"
+        condition = f"&& request.auth != null && request.auth.uid == ''"
 
 
     elif user_type == "Role":
-        role = st.text_input("Enter role:")
-        condition = f"&& request.auth != null && request.auth.token.role == '{role}'"
+        condition = f"&& request.auth != null && request.auth.token.role == ''"
 
 
     elif user_type == "Admin":
