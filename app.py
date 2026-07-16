@@ -101,6 +101,7 @@ if match:
 
     if user_type == "logged in":
         st.write('Place ; after null please')
+        condition = ''
 
 
     elif user_type == "UID":
