@@ -93,7 +93,6 @@ if match:
             "logged in",
             "UID",
             "Role",
-            "Admin",
             "Owner"
         ]
     )
@@ -109,12 +108,7 @@ if match:
 
 
     elif user_type == "Role":
-        condition = (f"&& request.auth.token.role == '';")
-
-
-    elif user_type == "Admin":
-        condition = "&& request.auth.token.role == 'admin';"
-
+        condition = (f"&& get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == '';")
 
     elif user_type == "Owner":
         condition = "&& request.auth.uid == resource.data.ownerId;"
